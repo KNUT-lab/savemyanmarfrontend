@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js";
-import { submitHelpRequest } from "../utils/api";
+import { submitHelpRequest, fetchCities } from "../utils/api";
 
 export function LocationForm(props) {
   const [formData, setFormData] = createSignal({
@@ -11,7 +11,7 @@ export function LocationForm(props) {
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [submitError, setSubmitError] = createSignal(null);
   const [submitSuccess, setSubmitSuccess] = createSignal(false);
-
+  const [cities, setCities] = createSignal([]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -19,6 +19,15 @@ export function LocationForm(props) {
       [name]: value,
     });
   };
+
+  createEffect(async () => {
+    try {
+      const data = await fetchCities();
+      setCities(data.cities || []);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+    }
+  });
 
   const submitForm = async (event) => {
     event.preventDefault();
@@ -103,17 +112,21 @@ export function LocationForm(props) {
         <label for="address" class="block text-gray-700 font-medium mb-2">
           Address:
         </label>
-        <input
-          type="text"
-          id="address"
+        <select
+          id="cities"
           name="address"
           value={formData().address}
-          onInput={handleChange}
+          onChange={(e) =>
+            setFormData({ ...formData(), address: e.target.value })
+          }
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50"
           required
-          disabled={isSubmitting()}
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter your address"
-        />
+        >
+          <option value="">Select Cities</option>
+          <For each={cities()}>
+            {(city) => <option value={city.id}>{city.name}</option>}
+          </For>
+        </select>
       </div>
 
       <div class="mb-4">
