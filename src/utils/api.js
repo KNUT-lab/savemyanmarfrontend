@@ -1,13 +1,8 @@
-// API URL configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-export const API_ENDPOINTS = {
-  HELP_REQUESTS: `${API_BASE_URL}${import.meta.env.VITE_API_HELP_ENDPOINT}`,
-};
+import { API } from "./constants";
 
-// API helper function for submitting help requests
 export async function submitHelpRequest(data) {
   try {
-    const response = await fetch(API_ENDPOINTS.HELP_REQUESTS, {
+    const response = await fetch(`${API}/help`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
