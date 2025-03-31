@@ -3,6 +3,7 @@ import { submitHelpRequest, fetchCities } from "../utils/api";
 
 export function LocationForm(props) {
   const [formData, setFormData] = createSignal({
+    id: "",
     name: "",
     phone: "",
     address: "",
@@ -51,6 +52,7 @@ export function LocationForm(props) {
 
       // Reset form after successful submission
       setFormData({
+        id: "",
         name: "",
         phone: "",
         address: "",
