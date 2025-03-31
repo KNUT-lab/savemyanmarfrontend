@@ -1,41 +1,35 @@
-import { A } from "@solidjs/router";
-
 export function NavBar() {
   return (
     <nav class="bg-blue-500 p-4 text-white shadow-lg">
       <div class="container mx-auto flex justify-between items-center">
-        <A href="/" class="text-xl font-bold">
-          Myan Save
-        </A>
+        <a href="/" class="text-xl font-bold">
+          Myan Safe
+        </a>
         <ul class="flex space-x-4">
           <li>
-            <A href="/" class="hover:underline" activeClass="underline">
+            <a href="/" class="hover:underline">
               Home
-            </A>
+            </a>
           </li>
           <li>
-            <A href="/get-help" class="hover:underline" activeClass="underline">
+            <a href="/get-help" class="hover:underline">
               Get Help
-            </A>
+            </a>
           </li>
           <li>
-            <A
-              href="/help-list"
-              class="hover:underline"
-              activeClass="underline"
-            >
+            <a href="/help-list" class="hover:underline">
               Help Lists
-            </A>
+            </a>
           </li>
           <li>
-            <A href="/about" class="hover:underline" activeClass="underline">
+            <a href="/about" class="hover:underline">
               About
-            </A>
+            </a>
           </li>
           <li>
-            <A href="/contact" class="hover:underline" activeClass="underline">
+            <a href="/contact" class="hover:underline">
               Contact
-            </A>
+            </a>
           </li>
         </ul>
       </div>

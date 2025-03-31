@@ -39,13 +39,17 @@ export async function fetchCities() {
 export async function fetchHelpList(pageUrl = null) {
   try {
     const url = pageUrl || `${API}/helplist`;
+    console.log("Fetching help list from:", url);
+
     const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("Help list response:", data);
+    return data;
   } catch (error) {
     console.error("Error fetching help list:", error);
     throw error;

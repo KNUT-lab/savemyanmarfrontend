@@ -6,12 +6,12 @@ export function HelpList() {
   const [helpData, setHelpData] = createSignal(null);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
-  const [currentPage, setCurrentPage] = createSignal(1);
 
   const loadHelpList = async (pageUrl = null) => {
     setLoading(true);
     try {
       const data = await fetchHelpList(pageUrl);
+      console.log("Fetched help data:", data);
       setHelpData(data);
     } catch (err) {
       console.error("Error fetching help list:", err);
@@ -21,6 +21,7 @@ export function HelpList() {
     }
   };
 
+  // Load data when component mounts
   createEffect(() => {
     loadHelpList();
   });
@@ -47,9 +48,9 @@ export function HelpList() {
         </div>
       </Show>
 
-      <Show when={helpData() && !loading() && !error()}>
+      <Show when={helpData() && !loading()}>
         <div>
-          <For each={Object.entries(helpData()?.results || {})}>
+          <For each={Object.entries(helpData().results || {})}>
             {([category, requests]) => (
               <div class="mb-8">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">
@@ -90,9 +91,9 @@ export function HelpList() {
           </For>
 
           <Pagination
-            count={helpData()?.count || 0}
-            next={helpData()?.next}
-            previous={helpData()?.previous}
+            count={helpData().count || 0}
+            next={helpData().next}
+            previous={helpData().previous}
             onPageChange={handlePageChange}
           />
         </div>

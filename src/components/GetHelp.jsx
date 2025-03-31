@@ -1,9 +1,13 @@
-import { createSignal } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 import { LocationForm } from "./LocationForm";
 
 export function GetHelp() {
   const [userLocation, setUserLocation] = createSignal(null);
   const [locationText, setLocationText] = createSignal("သင့်ရဲ့နေရပ်....");
+
+  onMount(() => {
+    getLocation();
+  });
 
   const getLocation = () => {
     if (navigator.geolocation) {
@@ -36,6 +40,7 @@ export function GetHelp() {
       <h2 class="text-2xl font-bold text-blue-800 mb-6">
         Request Emergency Help
       </h2>
+      <p class="mb-4 text-gray-600">{locationText()}</p>
       <LocationForm userLocation={userLocation} showLocation={showLocation} />
     </div>
   );

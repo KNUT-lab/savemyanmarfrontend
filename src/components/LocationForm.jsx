@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, createEffect } from "solid-js";
 import { submitHelpRequest, fetchCities } from "../utils/api";
 
 export function LocationForm(props) {
@@ -39,6 +39,7 @@ export function LocationForm(props) {
       lat: location?.lat || "",
       lon: location?.lon || "",
     };
+    console.log(submitData);
 
     setIsSubmitting(true);
     setSubmitError(null);
@@ -119,7 +120,7 @@ export function LocationForm(props) {
           onChange={(e) =>
             setFormData({ ...formData(), address: e.target.value })
           }
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         >
           <option value="">Select Cities</option>
