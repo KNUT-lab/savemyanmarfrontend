@@ -15,7 +15,7 @@ export function Contact() {
             <strong>Email:</strong> <a herf="mailto:contact@myansave.com">contact@myansave.com</a>
           </p>
           <p class="mb-2">
-            <strong>Phone:</strong> <a herf="tel:+95 123456789">+95 123 456 789</a>
+            <strong>Phone:</strong> <a herf="tel:+95123456789">+95 123 456 789</a>
           </p>
         </div>
       </div>
