@@ -12,7 +12,7 @@ export function Contact() {
         </p>
         <div class="bg-white shadow-md rounded-lg p-6">
           <p class="mb-2">
-            <strong>Email:</strong> <a herf="mailto:contact@myansave.com">contact@myansave.com</a>
+            <strong>Email:</strong> <a herf="mailto:contact@myansafe.com">contact@myansafe.com</a>
           </p>
           <p class="mb-2">
             <strong>Phone:</strong> <a herf="tel:+95123456789">+95 123 456 789</a>
