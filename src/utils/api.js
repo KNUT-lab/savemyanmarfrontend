@@ -53,7 +53,8 @@ export async function fetchHelpById(id) {
   try {
     console.log(`Fetching help details for ID: ${id}`);
 
-    const response = await axios.post(`${API}/helps/${id}`, {
+    // Change POST to GET
+    const response = await axios.get(`${API}/helps/${id}`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -63,7 +64,6 @@ export async function fetchHelpById(id) {
     return response.data;
   } catch (error) {
     console.error("Error fetching help details:", error);
-
     throw error;
   }
 }
