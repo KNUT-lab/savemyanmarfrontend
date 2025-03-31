@@ -1,5 +1,5 @@
 import { createSignal, createEffect } from "solid-js";
-import { submitHelpRequest, fetchCities } from "../utils/api";
+import { submitHelpRequest, fetchCities, fetchCategories } from "../utils/api";
 
 export function LocationForm(props) {
   const [formData, setFormData] = createSignal({
@@ -7,12 +7,14 @@ export function LocationForm(props) {
     name: "",
     phone: "",
     address: "",
+    cat: "",
     comment: "",
   });
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [submitError, setSubmitError] = createSignal(null);
   const [submitSuccess, setSubmitSuccess] = createSignal(false);
   const [cities, setCities] = createSignal([]);
+  const [categories, setCategories] = createSignal([]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -27,6 +29,12 @@ export function LocationForm(props) {
       setCities(data.cities || []);
     } catch (error) {
       console.error("Error fetching cities:", error);
+    }
+    try {
+      const data = await fetchCategories();
+      setCategories(data.categories || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
     }
   });
 
@@ -56,6 +64,7 @@ export function LocationForm(props) {
         name: "",
         phone: "",
         address: "",
+        cat: "",
         comment: "",
       });
     } catch (error) {
@@ -81,7 +90,7 @@ export function LocationForm(props) {
 
       <div class="mb-4">
         <label for="name" class="block text-gray-700 font-medium mb-2">
-          Name:
+          နာမည်:
         </label>
         <input
           type="text"
@@ -97,7 +106,7 @@ export function LocationForm(props) {
 
       <div class="mb-4">
         <label for="phone" class="block text-gray-700 font-medium mb-2">
-          Phone:
+          ဖုန်းနံပါတ်:
         </label>
         <input
           type="text"
@@ -113,7 +122,7 @@ export function LocationForm(props) {
 
       <div class="mb-4">
         <label for="address" class="block text-gray-700 font-medium mb-2">
-          Address:
+          လိပ်စာ:
         </label>
         <select
           id="cities"
@@ -125,7 +134,7 @@ export function LocationForm(props) {
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         >
-          <option value="">Select Cities</option>
+          <option value="">မြို့နယ်ရွေးချယ်ရန်</option>
           <For each={cities()}>
             {(city) => <option value={city.id}>{city.name}</option>}
           </For>
@@ -133,8 +142,27 @@ export function LocationForm(props) {
       </div>
 
       <div class="mb-4">
+        <label for="address" class="block text-gray-700 font-medium mb-2">
+          လိုအပ်သောအကူအညီ:
+        </label>
+        <select
+          id="categories"
+          name="cat"
+          value={formData().cat}
+          onChange={(e) => setFormData({ ...formData(), cat: e.target.value })}
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        >
+          <option value="">ရွေးချယ်ရန်</option>
+          <For each={categories()}>
+            {(category) => <option value={category.id}>{category.name}</option>}
+          </For>
+        </select>
+      </div>
+
+      <div class="mb-4">
         <label for="comment" class="block text-gray-700 font-medium mb-2">
-          Comment:
+          အကြောင်းအရာ:
         </label>
         <textarea
           id="comment"
@@ -162,10 +190,10 @@ export function LocationForm(props) {
       <button
         type="submit"
         disabled={isSubmitting()}
-        class={`w-full font-bold py-2 px-4 rounded-md transition duration-300 ${
+        class={`w-full font-bold text-lg py-2 px-4 rounded-md transition duration-300 ${
           isSubmitting()
             ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700 text-white"
+            : "bg-red-600 hover:bg-red-700 text-white"
         }`}
       >
         {isSubmitting() ? "Submitting..." : "အကူအညီရယူရန်"}

@@ -3,7 +3,9 @@ import { LocationForm } from "./LocationForm";
 
 export function GetHelp() {
   const [userLocation, setUserLocation] = createSignal(null);
-  const [locationText, setLocationText] = createSignal("သင့်ရဲ့နေရပ်....");
+  const [locationText, setLocationText] = createSignal(
+    "သင့်ရဲ့နေရပ် ရယူနေသည်....",
+  );
 
   onMount(() => {
     getLocation();
@@ -38,7 +40,7 @@ export function GetHelp() {
   return (
     <div class="bg-white shadow-md rounded-lg p-6">
       <h2 class="text-2xl font-bold text-blue-800 mb-6">
-        Request Emergency Help
+        အကူအညီတောင်းခံရန် / Request Emergency Help
       </h2>
       <p class="mb-4 text-gray-600">{locationText()}</p>
       <LocationForm userLocation={userLocation} showLocation={showLocation} />

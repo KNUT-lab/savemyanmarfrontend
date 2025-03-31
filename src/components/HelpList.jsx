@@ -1,11 +1,13 @@
 import { createSignal, createEffect, Show, For } from "solid-js";
 import { fetchHelpList } from "../utils/api";
 import { Pagination } from "./Pagination";
+import { useNavigate } from "@solidjs/router";
 
 export function HelpList() {
   const [helpData, setHelpData] = createSignal(null);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
+  const navigate = useNavigate();
 
   const loadHelpList = async (pageUrl = null) => {
     setLoading(true);
@@ -30,10 +32,14 @@ export function HelpList() {
     loadHelpList(url);
   };
 
+  const handleViewDetails = (helpId) => {
+    navigate(`/help/${helpId}`);
+  };
+
   return (
     <div class="bg-white shadow-md rounded-lg p-6">
       <h2 class="text-2xl font-bold text-blue-800 mb-6">
-        Emergency Help Requests
+        အကူအညီတောင်းခံမှုများ
       </h2>
 
       <Show when={loading()}>
@@ -82,6 +88,14 @@ export function HelpList() {
                       </div>
                       <div class="mt-3 text-sm text-gray-600">
                         Location: {request.latitude}, {request.longitude}
+                      </div>
+                      <div class="mt-4">
+                        <button
+                          onClick={() => handleViewDetails(request.id)}
+                          class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition text-sm"
+                        >
+                          View Details
+                        </button>
                       </div>
                     </div>
                   )}

@@ -23,7 +23,7 @@ export function Home() {
             </p>
             <a
               href="/get-help"
-              class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"
+              class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold text-lg py-2 px-4 rounded transition"
             >
               အခုပဲ အကူအညီရယူပါ
             </a>
@@ -37,7 +37,7 @@ export function Home() {
             </p>
             <a
               href="/help-list"
-              class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"
+              class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-2 px-4 rounded transition"
             >
               အကူအညီစာရင်းကို ကြည့်ရှုရန်
             </a>

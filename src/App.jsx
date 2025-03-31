@@ -1,9 +1,9 @@
 import { createSignal, onMount, ErrorBoundary } from "solid-js";
 import { Router, Route } from "@solidjs/router";
-import { Header } from "./components/Header";
 import { NavBar } from "./components/Navbar";
 import { GetHelp } from "./components/GetHelp";
 import { HelpList } from "./components/HelpList";
+import { HelpDetail } from "./components/HelpDetail";
 import { Contact } from "./components/Contact";
 import { About } from "./components/About";
 import { Home } from "./components/Home";
@@ -47,6 +47,7 @@ function App() {
             <Route path="/" component={Home} />
             <Route path="/get-help" component={GetHelp} />
             <Route path="/help-list" component={HelpList} />
+            <Route path="/help/:id" component={HelpDetail} />
             <Route path="/about" component={About} />
             <Route path="/contact" component={Contact} />
           </Router>

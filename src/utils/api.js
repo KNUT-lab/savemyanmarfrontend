@@ -1,20 +1,14 @@
+import axios from "axios";
 import { API } from "../constants";
 
 export async function submitHelpRequest(data) {
   try {
-    const response = await fetch(`${API}/help`, {
-      method: "POST",
+    const response = await axios.post(`${API}/help`, data, {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error("Error submitting help request:", error);
     throw error;
@@ -23,15 +17,20 @@ export async function submitHelpRequest(data) {
 
 export async function fetchCities() {
   try {
-    const response = await fetch(`${API}/cities`);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await axios.get(`${API}/cities`);
+    return response.data;
   } catch (error) {
     console.error("Error fetching cities:", error);
+    throw error;
+  }
+}
+
+export async function fetchCategories() {
+  try {
+    const response = await axios.get(`${API}/categories`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
     throw error;
   }
 }
@@ -41,17 +40,30 @@ export async function fetchHelpList(pageUrl = null) {
     const url = pageUrl || `${API}/helplist`;
     console.log("Fetching help list from:", url);
 
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log("Help list response:", data);
-    return data;
+    const response = await axios.get(url);
+    console.log("Help list response:", response.data);
+    return response.data;
   } catch (error) {
     console.error("Error fetching help list:", error);
+    throw error;
+  }
+}
+
+export async function fetchHelpById(id) {
+  try {
+    console.log(`Fetching help details for ID: ${id}`);
+
+    const response = await axios.post(`${API}/helps/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("Help details response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching help details:", error);
+
     throw error;
   }
 }
