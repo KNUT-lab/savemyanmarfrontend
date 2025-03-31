@@ -12,10 +12,17 @@ export function Contact() {
         </p>
         <div class="bg-white shadow-md rounded-lg p-6">
           <p class="mb-2">
-            <strong>Email:</strong> <a href="mailto:contact@myansafe.com">contact@myansafe.com</a>
+            <strong>Email:</strong>{" "}
+            <a href="mailto:help@myansafe.com">help@myansafe.com</a>
           </p>
           <p class="mb-2">
-            <strong>Phone:</strong> <a href="tel:+95123456789">+95 123 456 789</a>
+            <strong>Phone:</strong>{" "}
+            <a href="tel:+959770626791">+95 9 770 626 791</a>
+          </p>
+          <p class="mb-2">
+            <strong>Backup Phones:</strong>{" "}
+            <a href="tel:+959442152648">+95 9 442 152 648</a> ,
+            <a href="tel:+959447799957">+95 9 447 799 957</a>
           </p>
         </div>
       </div>
