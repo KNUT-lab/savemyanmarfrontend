@@ -1,6 +1,7 @@
 import { createSignal, createEffect, onMount, onCleanup, Show } from "solid-js";
 import { useParams, useNavigate } from "@solidjs/router";
 import { fetchHelpById } from "../utils/api";
+import { SolidLeafletMap } from "solidjs-leaflet";
 
 export function HelpDetail() {
   const params = useParams();
@@ -17,53 +18,6 @@ export function HelpDetail() {
   onMount(() => {
     // First load the data
     loadHelpData();
-
-    // Load Google Maps API with recommended loading pattern
-    if (!window.google || !window.google.maps) {
-      // Create a callback function name
-      const callbackName =
-        "initGoogleMap_" + Math.random().toString(36).substr(2, 9);
-
-      // Define the callback function globally
-      window[callbackName] = () => {
-        console.log("Google Maps loaded successfully");
-        if (helpData() && helpData().lat && helpData().lon) {
-          initMap(helpData().lat, helpData().lon);
-        }
-      };
-
-      // Create script with proper async loading pattern
-      const script = document.createElement("script");
-      // Note: Replace YOUR_API_KEY with an actual Google Maps API key
-      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=${callbackName}&loading=async&v=weekly`;
-      script.async = true;
-      script.defer = true;
-
-      document.head.appendChild(script);
-    } else {
-      // Google Maps already loaded
-      console.log("Google Maps already loaded");
-      if (helpData() && helpData().lat && helpData().lon) {
-        setTimeout(() => {
-          initMap(helpData().lat, helpData().lon);
-        }, 500);
-      }
-    }
-
-    // Handle window resize events
-    const handleResize = () => {
-      if (mapInstance()) {
-        // Google Maps handles resizing automatically
-        console.log("Window resized");
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    onCleanup(() => {
-      window.removeEventListener("resize", handleResize);
-      // No need to explicitly destroy Google Maps instance
-    });
   });
 
   // Effect to initialize map when data is ready
@@ -102,100 +56,6 @@ export function HelpDetail() {
       setError("Failed to load help request details. Please try again later.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const initMap = (lat, lon) => {
-    // Ensure Google Maps is loaded
-    if (!window.google || !window.google.maps) {
-      console.error("Google Maps is not loaded yet");
-      return;
-    }
-
-    try {
-      console.log("Initializing Google Map");
-      createMap(lat, lon);
-    } catch (err) {
-      console.error("Error initializing map:", err);
-    }
-  };
-
-  const createMap = (lat, lon) => {
-    if (!mapContainer) {
-      console.error("Map container reference not found");
-      return;
-    }
-
-    // Convert string coordinates to numbers if needed
-    const latitude = typeof lat === "string" ? Number.parseFloat(lat) : lat;
-    const longitude = typeof lon === "string" ? Number.parseFloat(lon) : lon;
-
-    // Check if coordinates are valid
-    if (isNaN(latitude) || isNaN(longitude)) {
-      console.error("Invalid coordinates:", lat, lon);
-      return;
-    }
-
-    try {
-      console.log("Creating new Google Map instance");
-
-      const position = { lat: latitude, lng: longitude };
-
-      // Create map with options
-      const map = new window.google.maps.Map(mapContainer, {
-        zoom: 15,
-        center: position,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-        zoomControl: true,
-      });
-
-      // Use AdvancedMarkerElement instead of deprecated Marker
-      if (
-        window.google.maps.marker &&
-        window.google.maps.marker.AdvancedMarkerElement
-      ) {
-        // Create marker content
-        const markerContent = document.createElement("div");
-        markerContent.innerHTML = `
-          <div style="background-color: #3b82f6; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-            ${helpData()?.name || "Help location"}
-          </div>
-        `;
-
-        // Create advanced marker
-        const marker = new window.google.maps.marker.AdvancedMarkerElement({
-          map,
-          position,
-          content: markerContent,
-          title: helpData()?.name || "Help location",
-        });
-      } else {
-        // Fallback to regular marker if AdvancedMarkerElement is not available
-        const marker = new window.google.maps.Marker({
-          position,
-          map,
-          title: helpData()?.name || "Help location",
-        });
-
-        // Add info window
-        const infoWindow = new window.google.maps.InfoWindow({
-          content: `<div style="font-weight: bold;">${helpData()?.name || "Help location"}</div>`,
-        });
-
-        marker.addListener("click", () => {
-          infoWindow.open(map, marker);
-        });
-
-        // Open info window by default
-        infoWindow.open(map, marker);
-      }
-
-      setMapInstance(map);
-      setMapLoaded(true);
-    } catch (err) {
-      console.error("Error creating Google Map:", err);
     }
   };
 
@@ -280,33 +140,27 @@ export function HelpDetail() {
             <div
               ref={mapContainer}
               class="h-48 sm:h-56 md:h-64 bg-gray-100 rounded-lg flex items-center justify-center w-full"
-              style="min-height: 250px; position: relative;"
+              style="min-height: 250px; position: relative; overflow: hidden;"
             >
-              <Show when={!mapLoaded()}>
-                <div class="text-gray-500 text-sm sm:text-base flex items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                  <svg
-                    class="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Loading map...
-                </div>
-              </Show>
+              <SolidLeafletMap
+                center={[63.0, 13.0]}
+                id="map"
+                zoom={17}
+                onMapReady={(l, m) => {
+                  const icon = l.icon({
+                    iconUrl:
+                      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+                    shadowUrl:
+                      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+                  });
+                  const marker = l
+                    .marker([63.0, 13.0], {
+                      icon,
+                    })
+                    .addTo(m);
+                  marker.bindPopup("Hello World!");
+                }}
+              />
             </div>
             <div class="mt-2 text-xs sm:text-sm text-gray-600">
               Coordinates: {helpData()?.lat || "-"}, {helpData()?.lon || "-"}
