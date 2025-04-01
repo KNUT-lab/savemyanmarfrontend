@@ -29,8 +29,8 @@ export function Login() {
     try {
       setLoading(true);
       const response = await login(username(), password());
-      if (response.access.token) {
-        localStorage.setItem("auth_token", response.token);
+      if (response.access) {
+        localStorage.setItem("auth_token", response.access);
         navigate("/suppliers", { replace: true });
       } else {
         setError("Authentication failed");
