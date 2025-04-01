@@ -13,9 +13,7 @@ export async function login(username, password) {
         },
       },
     );
-    window.location.reload();
     return response.data;
-    //localStorage
   } catch (error) {
     console.error("Login error:", error);
     throw error;
