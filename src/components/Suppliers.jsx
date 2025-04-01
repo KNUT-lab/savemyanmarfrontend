@@ -1,5 +1,6 @@
 import { createSignal, onMount } from "solid-js";
 import { authHeader } from "../utils/auth";
+import { API } from "../constants";
 
 export function Suppliers() {
   const [suppliers, setSuppliers] = createSignal([]);
@@ -9,15 +10,12 @@ export function Suppliers() {
   onMount(async () => {
     try {
       // Example of fetching suppliers with authentication
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || ""}/suppliers`,
-        {
-          headers: {
-            ...authHeader(),
-            "Content-Type": "application/json",
-          },
+      const response = await fetch(`${API}/suppliers`, {
+        headers: {
+          ...authHeader(),
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);

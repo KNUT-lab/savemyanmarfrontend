@@ -13,7 +13,9 @@ export async function login(username, password) {
         },
       },
     );
+    localStorage.setItem("auth_token", response.data.access);
     return response.data;
+    //localStorage
   } catch (error) {
     console.error("Login error:", error);
     throw error;

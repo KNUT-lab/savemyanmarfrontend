@@ -24,7 +24,7 @@ export function NavBar() {
     <nav class="bg-blue-500 p-3 sm:p-4 text-white shadow-lg">
       <div class="container mx-auto flex flex-wrap justify-between items-center">
         <a href="/" class="text-lg sm:text-xl font-bold">
-          Myan Safe
+          Myan safe
         </a>
 
         {/* Mobile menu button */}
