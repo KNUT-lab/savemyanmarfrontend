@@ -29,7 +29,7 @@ export function Login() {
     try {
       setLoading(true);
       const response = await login(username(), password());
-      if (response.token) {
+      if (response.access.token) {
         localStorage.setItem("auth_token", response.token);
         navigate("/suppliers", { replace: true });
       } else {
