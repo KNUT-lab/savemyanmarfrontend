@@ -48,7 +48,7 @@ export function Login() {
     <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-12 px-6 space-y-6">
       <Header />
       <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md space-y-6">
-        <h2 class="text-center text-3xl font-bold text-gray-900">Sign in</h2>
+        <h2 class="text-center text-3 xl font-bold text-gray-900">Sign in</h2>
         {error() && (
           <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md">
             {error()}
