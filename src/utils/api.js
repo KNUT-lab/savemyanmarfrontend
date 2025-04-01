@@ -1,13 +1,34 @@
 import axios from "axios";
 import { API } from "../constants";
+import { authHeader } from "./auth";
 
+// Create an axios instance with default config
+const apiClient = axios.create({
+  baseURL: API,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Add a request interceptor to include auth token in all requests
+apiClient.interceptors.request.use(
+  (config) => {
+    // Add auth header to the request if available
+    const headers = authHeader();
+    if (headers.Authorization) {
+      config.headers.Authorization = headers.Authorization;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
+// Export the original API functions but use the apiClient
 export async function submitHelpRequest(data) {
   try {
-    const response = await axios.post(`${API}/help`, data, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await apiClient.post("/help", data);
     return response.data;
   } catch (error) {
     console.error("Error submitting help request:", error);
@@ -17,7 +38,7 @@ export async function submitHelpRequest(data) {
 
 export async function fetchCities() {
   try {
-    const response = await axios.get(`${API}/cities`);
+    const response = await apiClient.get("/cities");
     return response.data;
   } catch (error) {
     console.error("Error fetching cities:", error);
@@ -27,7 +48,7 @@ export async function fetchCities() {
 
 export async function fetchCategories() {
   try {
-    const response = await axios.get(`${API}/categories`);
+    const response = await apiClient.get("/categories");
     return response.data;
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -37,10 +58,10 @@ export async function fetchCategories() {
 
 export async function fetchHelpList(pageUrl = null) {
   try {
-    const url = pageUrl || `${API}/helplist`;
+    const url = pageUrl || "/helplist";
     console.log("Fetching help list from:", url);
 
-    const response = await axios.get(url);
+    const response = await apiClient.get(url);
     console.log("Help list response:", response.data);
     return response.data;
   } catch (error) {
@@ -52,18 +73,35 @@ export async function fetchHelpList(pageUrl = null) {
 export async function fetchHelpById(id) {
   try {
     console.log(`Fetching help details for ID: ${id}`);
-
-    // Change POST to GET
-    const response = await axios.get(`${API}/helps/${id}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
+    const response = await apiClient.get(`/helps/${id}`);
     console.log("Help details response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching help details:", error);
+    throw error;
+  }
+}
+
+// Add this new function for submitting comments
+export async function submitComment(helpId, commentText) {
+  try {
+    const response = await apiClient.post(`/helps/${helpId}/submitComments`, {
+      text: commentText,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting comment:", error);
+    throw error;
+  }
+}
+
+// Add this function to fetch comments for a help request
+export async function fetchComments(helpId) {
+  try {
+    const response = await apiClient.get(`/helps/${helpId}/comments`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching comments:", error);
     throw error;
   }
 }

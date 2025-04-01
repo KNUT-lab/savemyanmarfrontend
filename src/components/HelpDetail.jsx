@@ -1,7 +1,8 @@
-import { createSignal, createEffect, onMount, onCleanup, Show } from "solid-js";
+import { createSignal, createEffect, onMount, Show, For } from "solid-js";
 import { useParams, useNavigate } from "@solidjs/router";
-import { fetchHelpById } from "../utils/api";
+import { fetchHelpById, submitComment, fetchComments } from "../utils/api";
 import { SolidLeafletMap } from "solidjs-leaflet";
+import { isAuthenticated } from "../utils/auth";
 
 export function HelpDetail() {
   const params = useParams();
@@ -11,6 +12,10 @@ export function HelpDetail() {
   const [error, setError] = createSignal(null);
   const [mapLoaded, setMapLoaded] = createSignal(false);
   const [mapInstance, setMapInstance] = createSignal(null);
+  const [comments, setComments] = createSignal([]);
+  const [newComment, setNewComment] = createSignal("");
+  const [submittingComment, setSubmittingComment] = createSignal(false);
+  const [loadingComments, setLoadingComments] = createSignal(false);
 
   // Reference to map container
   let mapContainer;
@@ -18,6 +23,8 @@ export function HelpDetail() {
   onMount(() => {
     // First load the data
     loadHelpData();
+    // Load comments separately
+    loadComments();
   });
 
   // Effect to initialize map when data is ready
@@ -59,11 +66,69 @@ export function HelpDetail() {
     }
   };
 
+  const loadComments = async () => {
+    if (!params.id) return;
+
+    setLoadingComments(true);
+    try {
+      const data = await fetchComments(params.id);
+      setComments(data.comments || []);
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+      // We don't set an error state here to avoid disrupting the main UI
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!newComment().trim() || submittingComment()) return;
+
+    setSubmittingComment(true);
+
+    try {
+      const response = await submitComment(params.id, newComment());
+      setComments([
+        ...comments(),
+        {
+          id: response.id || Date.now(),
+          text: newComment(),
+          author: response.author || "You",
+          timestamp: response.timestamp || new Date().toISOString(),
+        },
+      ]);
+      setNewComment("");
+    } catch (err) {
+      console.error("Error posting comment:", err);
+      alert("Failed to post comment. Please try again.");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const goBackToList = () => {
+    navigate("/help-list");
+  };
+
+  // Mock initMap function to resolve the error.  In a real application,
+  // this would be replaced with the actual map initialization logic.
+  const initMap = (lat, lon) => {
+    console.log(`Initializing map at ${lat}, ${lon}`);
+    // In a real application, you would initialize your map here.
+    // For example, if you were using Google Maps:
+    // const map = new google.maps.Map(mapContainer, {
+    //   center: { lat: lat, lng: lon },
+    //   zoom: 12
+    // });
+  };
+
   return (
     <div class="bg-white shadow-md rounded-lg p-3 sm:p-6 mx-auto max-w-7xl">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
         <button
-          onClick={() => navigate("/help-list")}
+          onClick={goBackToList}
           class="mb-3 sm:mb-0 mr-4 text-blue-600 hover:text-blue-800 flex items-center text-sm sm:text-base"
         >
           <svg
@@ -168,11 +233,12 @@ export function HelpDetail() {
           </div>
         </div>
 
-        <div class="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t">
-          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3">
+        {/* Improved Actions Section */}
+        <div class="mt-6 pt-4 border-t">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">
             Actions
           </h3>
-          <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={() => (window.location.href = `tel:${helpData().phone}`)}
               class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition text-sm sm:text-base flex items-center justify-center"
@@ -180,7 +246,7 @@ export function HelpDetail() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4 mr-1"
+                class="h-4 w-4 mr-2"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -195,12 +261,12 @@ export function HelpDetail() {
               အခုဆက်သွယ်ရန်
             </button>
             <button
-              onClick={() => navigate("/help-list")}
+              onClick={goBackToList}
               class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition text-sm sm:text-base flex items-center justify-center"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4 mr-1"
+                class="h-4 w-4 mr-2"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -215,6 +281,112 @@ export function HelpDetail() {
               List သို့ပြန်သွားရန်
             </button>
           </div>
+        </div>
+
+        {/* Improved Comments Section */}
+        <div class="mt-6 pt-4 border-t">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-800">
+              Comments
+            </h3>
+            <div class="text-sm text-gray-500">
+              {comments().length}{" "}
+              {comments().length === 1 ? "comment" : "comments"}
+            </div>
+          </div>
+
+          {/* Comments list with improved styling */}
+          <div class="space-y-4 mb-6">
+            <Show when={loadingComments()}>
+              <div class="flex justify-center py-4">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              </div>
+            </Show>
+
+            <Show when={!loadingComments() && comments().length === 0}>
+              <div class="bg-gray-50 p-4 rounded-md text-center">
+                <p class="text-gray-500 text-sm">
+                  No comments yet. Be the first to comment!
+                </p>
+              </div>
+            </Show>
+
+            <For each={comments()}>
+              {(comment) => (
+                <div class="bg-gray-50 p-4 rounded-md">
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center">
+                      <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 mr-2">
+                        {comment.author
+                          ? comment.author.charAt(0).toUpperCase()
+                          : "U"}
+                      </div>
+                      <span class="font-medium">
+                        {comment.author || "User"}
+                      </span>
+                    </div>
+                    <span class="text-xs text-gray-500">
+                      {new Date(comment.timestamp).toLocaleString()}
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-700">{comment.text}</p>
+                </div>
+              )}
+            </For>
+          </div>
+
+          {/* Comment form with improved styling */}
+          <Show
+            when={isAuthenticated()}
+            fallback={
+              <div class="bg-blue-50 p-4 rounded-md flex flex-col sm:flex-row items-center justify-between">
+                <p class="text-sm text-blue-700 mb-3 sm:mb-0">
+                  Please log in to post a comment
+                </p>
+                <button
+                  onClick={() => navigate("/login")}
+                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-md w-full sm:w-auto"
+                >
+                  Log In to Comment
+                </button>
+              </div>
+            }
+          >
+            <form onSubmit={handleCommentSubmit} class="space-y-3">
+              <div>
+                <label
+                  for="comment"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Add a comment
+                </label>
+                <textarea
+                  id="comment"
+                  value={newComment()}
+                  onInput={(e) => setNewComment(e.target.value)}
+                  placeholder="Share your thoughts..."
+                  class="w-full p-3 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows="3"
+                />
+              </div>
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={!newComment().trim() || submittingComment()}
+                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-md text-sm flex items-center"
+                >
+                  {submittingComment() ? (
+                    <>
+                      <div class="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
+                      Posting...
+                    </>
+                  ) : (
+                    "Post Comment"
+                  )}
+                </button>
+              </div>
+            </form>
+          </Show>
         </div>
       </Show>
     </div>

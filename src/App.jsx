@@ -7,6 +7,9 @@ import { HelpDetail } from "./components/HelpDetail";
 import { Contact } from "./components/Contact";
 import { About } from "./components/About";
 import { Home } from "./components/Home";
+import { Login } from "./components/Login";
+import { Suppliers } from "./components/Suppliers";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Fallback component for error boundary
 function ErrorFallback(props) {
@@ -50,6 +53,15 @@ function App() {
             <Route path="/help/:id" component={HelpDetail} />
             <Route path="/about" component={About} />
             <Route path="/contact" component={Contact} />
+            <Route path="/login" component={Login} />
+            <Route
+              path="/suppliers"
+              component={(props) => (
+                <ProtectedRoute>
+                  <Suppliers {...props} />
+                </ProtectedRoute>
+              )}
+            />
           </Router>
         )}
       </div>

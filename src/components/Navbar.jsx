@@ -15,6 +15,7 @@ export function NavBar() {
     { title: "Home", href: "/" },
     { title: "Get Help", href: "/get-help" },
     { title: "Help Lists", href: "/help-list" },
+    { title: "Suppliers", href: "/suppliers" },
     { title: "About", href: "/about" },
     { title: "Contact", href: "/contact" },
   ];
