@@ -98,7 +98,6 @@ export function LocationForm(props) {
           name="name"
           value={formData().name}
           onInput={handleChange}
-          required
           disabled={isSubmitting()}
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -114,7 +113,6 @@ export function LocationForm(props) {
           name="phone"
           value={formData().phone}
           onInput={handleChange}
-          required
           disabled={isSubmitting()}
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -132,7 +130,6 @@ export function LocationForm(props) {
             setFormData({ ...formData(), address: e.target.value })
           }
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
         >
           <option value="">မြို့နယ်ရွေးချယ်ရန်</option>
           <For each={cities()}>
@@ -151,7 +148,6 @@ export function LocationForm(props) {
           value={formData().cat}
           onChange={(e) => setFormData({ ...formData(), cat: e.target.value })}
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
         >
           <option value="">ရွေးချယ်ရန်</option>
           <For each={categories()}>
