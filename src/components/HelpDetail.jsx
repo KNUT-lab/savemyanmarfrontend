@@ -143,7 +143,7 @@ export function HelpDetail() {
               style="min-height: 250px; position: relative; overflow: hidden;"
             >
               <SolidLeafletMap
-                center={[63.0, 13.0]}
+                center={[helpData().lat, helpData().lon]}
                 id="map"
                 zoom={17}
                 onMapReady={(l, m) => {
@@ -154,7 +154,7 @@ export function HelpDetail() {
                       "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
                   });
                   const marker = l
-                    .marker([63.0, 13.0], {
+                    .marker([helpData().lat, helpData().lon], {
                       icon,
                     })
                     .addTo(m);
