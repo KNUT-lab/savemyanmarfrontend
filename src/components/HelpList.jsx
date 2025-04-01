@@ -78,7 +78,7 @@ export function HelpList() {
                             {request.name || "Anonymous"}
                           </p>
                           <p class="text-gray-600">
-                            Phone: {request.phone_number}
+                            ဖုန်းနံပါတ်: {request.phone_number}
                           </p>
                           <p class="text-gray-600 mt-2">{request.note}</p>
                         </div>
@@ -94,7 +94,7 @@ export function HelpList() {
                           onClick={() => handleViewDetails(request.id)}
                           class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition text-sm"
                         >
-                          View Details
+                          အသေးစိတ်ကြည့်ရှုရန်
                         </button>
                       </div>
                     </div>

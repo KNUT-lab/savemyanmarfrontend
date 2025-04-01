@@ -1,7 +1,6 @@
-import { createSignal, createEffect, onMount, Show } from "solid-js";
+import { createSignal, createEffect, onMount, onCleanup, Show } from "solid-js";
 import { useParams, useNavigate } from "@solidjs/router";
 import { fetchHelpById } from "../utils/api";
-import L from "leaflet";
 
 export function HelpDetail() {
   const params = useParams();
@@ -10,19 +9,80 @@ export function HelpDetail() {
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
   const [mapLoaded, setMapLoaded] = createSignal(false);
+  const [mapInstance, setMapInstance] = createSignal(null);
+
+  // Reference to map container
+  let mapContainer;
 
   onMount(() => {
-    const mapElement = document.getElementById("map");
-    console.log(mapElement); // Check if it's found
+    // First load the data
     loadHelpData();
+
+    // Load Google Maps API with recommended loading pattern
+    if (!window.google || !window.google.maps) {
+      // Create a callback function name
+      const callbackName =
+        "initGoogleMap_" + Math.random().toString(36).substr(2, 9);
+
+      // Define the callback function globally
+      window[callbackName] = () => {
+        console.log("Google Maps loaded successfully");
+        if (helpData() && helpData().lat && helpData().lon) {
+          initMap(helpData().lat, helpData().lon);
+        }
+      };
+
+      // Create script with proper async loading pattern
+      const script = document.createElement("script");
+      // Note: Replace YOUR_API_KEY with an actual Google Maps API key
+      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=${callbackName}&loading=async&v=weekly`;
+      script.async = true;
+      script.defer = true;
+
+      document.head.appendChild(script);
+    } else {
+      // Google Maps already loaded
+      console.log("Google Maps already loaded");
+      if (helpData() && helpData().lat && helpData().lon) {
+        setTimeout(() => {
+          initMap(helpData().lat, helpData().lon);
+        }, 500);
+      }
+    }
+
+    // Handle window resize events
+    const handleResize = () => {
+      if (mapInstance()) {
+        // Google Maps handles resizing automatically
+        console.log("Window resized");
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    onCleanup(() => {
+      window.removeEventListener("resize", handleResize);
+      // No need to explicitly destroy Google Maps instance
+    });
   });
 
+  // Effect to initialize map when data is ready
   createEffect(() => {
-    if (!loading() && helpData()?.lat && helpData()?.lon) {
-      const mapElement = document.getElementById("map");
-      if (mapElement && !mapElement._leaflet_id) {
-        initMap(helpData().lat, helpData().lon);
-      }
+    if (
+      !loading() &&
+      helpData() &&
+      helpData()?.lat &&
+      helpData()?.lon &&
+      window.google &&
+      window.google.maps
+    ) {
+      console.log("Conditions met for map initialization");
+      // Use requestAnimationFrame to ensure DOM is ready
+      window.requestAnimationFrame(() => {
+        setTimeout(() => {
+          initMap(helpData().lat, helpData().lon);
+        }, 300);
+      });
     }
   });
 
@@ -41,73 +101,114 @@ export function HelpDetail() {
       console.error("Error fetching help details:", err);
       setError("Failed to load help request details. Please try again later.");
     } finally {
-      setLoading(false); // Ensure loading is turned off even if the request fails
+      setLoading(false);
     }
   };
 
   const initMap = (lat, lon) => {
-    if (typeof window !== "undefined") {
-      if (typeof L === "undefined") {
-        loadLeafletScript(() => createMap(lat, lon));
-      } else {
-        createMap(lat, lon);
-      }
-    }
-  };
-
-  const loadLeafletScript = (callback) => {
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-    script.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
-    script.crossOrigin = "";
-    script.onload = callback;
-
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-    link.integrity = "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=";
-    link.crossOrigin = "";
-
-    document.head.appendChild(link);
-    document.body.appendChild(script);
-  };
-
-  const createMap = (lat, lon) => {
-    const mapElement = document.getElementById("map");
-    if (!mapElement) {
-      console.error("Map container not found");
+    // Ensure Google Maps is loaded
+    if (!window.google || !window.google.maps) {
+      console.error("Google Maps is not loaded yet");
       return;
     }
 
-    if (mapElement._leaflet_id) return; // Prevent re-initialization
+    try {
+      console.log("Initializing Google Map");
+      createMap(lat, lon);
+    } catch (err) {
+      console.error("Error initializing map:", err);
+    }
+  };
 
-    setTimeout(() => {
-      const map = L.map("map").setView([lat, lon], 15);
+  const createMap = (lat, lon) => {
+    if (!mapContainer) {
+      console.error("Map container reference not found");
+      return;
+    }
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
+    // Convert string coordinates to numbers if needed
+    const latitude = typeof lat === "string" ? Number.parseFloat(lat) : lat;
+    const longitude = typeof lon === "string" ? Number.parseFloat(lon) : lon;
 
-      L.marker([lat, lon])
-        .addTo(map)
-        .bindPopup(helpData()?.name || "Help location")
-        .openPopup();
+    // Check if coordinates are valid
+    if (isNaN(latitude) || isNaN(longitude)) {
+      console.error("Invalid coordinates:", lat, lon);
+      return;
+    }
 
+    try {
+      console.log("Creating new Google Map instance");
+
+      const position = { lat: latitude, lng: longitude };
+
+      // Create map with options
+      const map = new window.google.maps.Map(mapContainer, {
+        zoom: 15,
+        center: position,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: true,
+      });
+
+      // Use AdvancedMarkerElement instead of deprecated Marker
+      if (
+        window.google.maps.marker &&
+        window.google.maps.marker.AdvancedMarkerElement
+      ) {
+        // Create marker content
+        const markerContent = document.createElement("div");
+        markerContent.innerHTML = `
+          <div style="background-color: #3b82f6; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            ${helpData()?.name || "Help location"}
+          </div>
+        `;
+
+        // Create advanced marker
+        const marker = new window.google.maps.marker.AdvancedMarkerElement({
+          map,
+          position,
+          content: markerContent,
+          title: helpData()?.name || "Help location",
+        });
+      } else {
+        // Fallback to regular marker if AdvancedMarkerElement is not available
+        const marker = new window.google.maps.Marker({
+          position,
+          map,
+          title: helpData()?.name || "Help location",
+        });
+
+        // Add info window
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: `<div style="font-weight: bold;">${helpData()?.name || "Help location"}</div>`,
+        });
+
+        marker.addListener("click", () => {
+          infoWindow.open(map, marker);
+        });
+
+        // Open info window by default
+        infoWindow.open(map, marker);
+      }
+
+      setMapInstance(map);
       setMapLoaded(true);
-    }, 300);
+    } catch (err) {
+      console.error("Error creating Google Map:", err);
+    }
   };
 
   return (
-    <div class="bg-white shadow-md rounded-lg p-6">
-      <div class="flex items-center justify-between mb-6">
+    <div class="bg-white shadow-md rounded-lg p-3 sm:p-6 mx-auto max-w-7xl">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
         <button
           onClick={() => navigate("/help-list")}
-          class="mr-4 text-blue-600 hover:text-blue-800 flex items-center"
+          class="mb-3 sm:mb-0 mr-4 text-blue-600 hover:text-blue-800 flex items-center text-sm sm:text-base"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 mr-1"
+            class="h-4 w-4 sm:h-5 sm:w-5 mr-1"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -117,94 +218,147 @@ export function HelpDetail() {
               clipRule="evenodd"
             />
           </svg>
-          စာရင်းသို့ပြန်သွားရန်
+          <span>စာရင်းသို့ပြန်သွားရန်</span>
         </button>
-        <h2 class="text-2xl font-bold text-blue-800">
+        <h2 class="text-xl sm:text-2xl font-bold text-blue-800 text-center sm:text-right">
           အကူအညီလိုသူရဲ့အသေးစိတ်အချက်အလက်များ
         </h2>
       </div>
 
       <Show when={loading()}>
-        <div class="flex justify-center my-8">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div class="flex justify-center my-6 sm:my-8">
+          <div class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-500"></div>
         </div>
       </Show>
 
       <Show when={error()}>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded mb-4 text-sm sm:text-base">
           {error()}
         </div>
       </Show>
 
       <Show when={helpData() && !loading()}>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div class="bg-gray-50 p-3 sm:p-4 rounded-lg order-2 md:order-1">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 border-b pb-2">
               ဆက်သွယ်ရန် အချက်အလက်များ
             </h3>
 
-            <div class="space-y-3">
+            <div class="space-y-2 sm:space-y-3 text-sm sm:text-base">
               <div>
-                <div class="text-sm text-gray-500">Name</div>
+                <div class="text-xs sm:text-sm text-gray-500">နာမည်</div>
                 <div class="font-medium">{helpData().name || "Anonymous"}</div>
               </div>
 
               <div>
-                <div class="text-sm text-gray-500">Phone</div>
+                <div class="text-xs sm:text-sm text-gray-500">ဖုန်းနံပါတ်</div>
                 <div class="font-medium">
                   {helpData().phone || "Not provided"}
                 </div>
               </div>
 
               <div>
-                <div class="text-sm text-gray-500">တည်ေနရာ</div>
+                <div class="text-xs sm:text-sm text-gray-500">မြို့</div>
                 <div class="font-medium">
                   {helpData().city || "Not specified"}
                 </div>
               </div>
 
               <div>
-                <div class="text-sm text-gray-500">Note</div>
-                <div class="mt-1 p-2 bg-white rounded border border-gray-100">
+                <div class="text-xs sm:text-sm text-gray-500">အကြောင်းအရာ</div>
+                <div class="mt-1 p-2 bg-white rounded border border-gray-100 text-sm sm:text-base break-words">
                   {helpData().note || "No additional notes provided."}
                 </div>
               </div>
             </div>
           </div>
 
-          <div>
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">
-              Map Location
+          <div class="order-1 md:order-2">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-4">
+              တည်နေရာ
             </h3>
             <div
-              id="map"
-              class="h-64 bg-gray-100 rounded-lg flex items-center justify-center"
+              ref={mapContainer}
+              class="h-48 sm:h-56 md:h-64 bg-gray-100 rounded-lg flex items-center justify-center w-full"
+              style="min-height: 250px; position: relative;"
             >
               <Show when={!mapLoaded()}>
-                <div class="text-gray-500">Loading map...</div>
+                <div class="text-gray-500 text-sm sm:text-base flex items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                  <svg
+                    class="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Loading map...
+                </div>
               </Show>
             </div>
-            <div class="mt-2 text-sm text-gray-600">
-              Coordinates: {helpData().lat}, {helpData().lon}
+            <div class="mt-2 text-xs sm:text-sm text-gray-600">
+              Coordinates: {helpData()?.lat || "-"}, {helpData()?.lon || "-"}
             </div>
           </div>
         </div>
 
-        <div class="mt-6 pt-4 border-t">
-          <h3 class="text-lg font-semibold text-gray-800 mb-3">Actions</h3>
-          <div class="flex space-x-3">
+        <div class="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3">
+            Actions
+          </h3>
+          <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
             <button
               onClick={() => (window.location.href = `tel:${helpData().phone}`)}
-              class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition"
+              class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition text-sm sm:text-base flex items-center justify-center"
               disabled={!helpData().phone}
             >
-              Call Now
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                />
+              </svg>
+              အခုဆက်သွယ်ရန်
             </button>
             <button
               onClick={() => navigate("/help-list")}
-              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition"
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition text-sm sm:text-base flex items-center justify-center"
             >
-              Back to List
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                />
+              </svg>
+              List သို့ပြန်သွားရန်
             </button>
           </div>
         </div>

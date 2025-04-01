@@ -15,6 +15,7 @@
     "vite-plugin-solid": "^2.11.6"
   },
   "dependencies": {
+    "@solid-primitives/geolocation": "^1.5.0",
     "@solidjs/router": "^0.15.3",
     "@tailwindcss/vite": "^4.0.17",
     "axios": "^1.8.4",
