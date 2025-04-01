@@ -21,6 +21,7 @@
     "leaflet": "^1.9.4",
     "solid-js": "^1.9.5",
     "solid-leaflet": "^0.0.1",
+    "solidjs-leaflet": "^1.0.2",
     "tailwindcss": "^4.0.17"
   }
 }
