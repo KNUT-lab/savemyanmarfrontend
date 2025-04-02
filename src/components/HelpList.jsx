@@ -77,6 +77,9 @@ export function HelpList() {
                           <p class="font-medium">
                             {request.name || "Anonymous"}
                           </p>
+                          <p class="text-red-600">
+                            လိုအပ်သောအကူအညီ: {request.cat}
+                          </p>
                           <p class="text-gray-600">
                             ဖုန်းနံပါတ်: {request.phone_number}
                           </p>

@@ -29,7 +29,8 @@ apiClient.interceptors.request.use(
 export async function submitHelpRequest(data) {
   try {
     const response = await apiClient.post("/help", data);
-    return response.data;
+    //return response.data;
+    console.log(response.data);
   } catch (error) {
     console.error("Error submitting help request:", error);
     throw error;

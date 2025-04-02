@@ -76,17 +76,34 @@ export function LocationForm(props) {
 
   return (
     <form onSubmit={submitForm} class="bg-white shadow-md rounded-lg p-6">
-      {submitSuccess() && (
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          Your help request has been submitted successfully!
-        </div>
-      )}
+      <div>
+        <button
+          type="submit"
+          disabled={isSubmitting()}
+          class={`w-full font-bold text-2xl py-4 px-4 rounded-md transition duration-300 ${
+            isSubmitting()
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-red-600 hover:bg-red-700 text-white"
+          }`}
+        >
+          {isSubmitting() ? "Submitting..." : "အကူအညီရယူရန်"}
+        </button>
+        {submitSuccess() && (
+          <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {" "}
+            အကူအညီတောင်းခံမှုအောင်မြင်ပါတယ်
+            <a href="/help-list" class="underline">
+              List ကို ကြည့်ရန်{" "}
+            </a>
+          </div>
+        )}
 
-      {submitError() && (
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {submitError()}
-        </div>
-      )}
+        {submitError() && (
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {submitError()}
+          </div>
+        )}
+      </div>
 
       <div class="mb-4">
         <label for="name" class="block text-gray-700 font-medium mb-2">
@@ -182,18 +199,6 @@ export function LocationForm(props) {
         name="lon"
         value={props.userLocation()?.lon || ""}
       />
-
-      <button
-        type="submit"
-        disabled={isSubmitting()}
-        class={`w-full font-bold text-lg py-2 px-4 rounded-md transition duration-300 ${
-          isSubmitting()
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-red-600 hover:bg-red-700 text-white"
-        }`}
-      >
-        {isSubmitting() ? "Submitting..." : "အကူအညီရယူရန်"}
-      </button>
     </form>
   );
 }
