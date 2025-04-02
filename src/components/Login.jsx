@@ -13,7 +13,7 @@ export function Login() {
   createEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (token) {
-      navigate("/suppliers", { replace: true });
+      navigate("/home", { replace: true });
     }
   });
 
@@ -31,7 +31,7 @@ export function Login() {
       const response = await login(username(), password());
       if (response.access) {
         localStorage.setItem("auth_token", response.access);
-        navigate("/suppliers", { replace: true });
+        navigate("/add-supplier", { replace: true });
       } else {
         setError("Authentication failed");
       }

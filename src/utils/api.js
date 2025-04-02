@@ -106,3 +106,16 @@ export async function fetchComments(helpId) {
     throw error;
   }
 }
+export async function fetchSuppliersList(pageUrl = null) {
+  try {
+    const url = pageUrl || "/generalsuppliers";
+    console.log("Fetching supplers list from:", url);
+
+    const response = await apiClient.get(url);
+    console.log("Supplers list response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching supplers list:", error);
+    throw error;
+  }
+}

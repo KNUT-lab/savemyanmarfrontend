@@ -54,14 +54,7 @@ function App() {
             <Route path="/about" component={About} />
             <Route path="/contact" component={Contact} />
             <Route path="/login" component={Login} />
-            <Route
-              path="/suppliers"
-              component={(props) => (
-                <ProtectedRoute>
-                  <Suppliers {...props} />
-                </ProtectedRoute>
-              )}
-            />
+            <Route path="/suppliers" component={Suppliers} />
             <Route
               path="/add-supplier"
               component={(props) => (

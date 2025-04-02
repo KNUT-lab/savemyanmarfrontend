@@ -1,5 +1,5 @@
 import { createSignal, createEffect, Show, For } from "solid-js";
-import { fetchHelpList } from "../utils/api";
+import { fetchSuppliersList } from "../utils/api";
 import { Pagination } from "./Pagination";
 import { useNavigate } from "@solidjs/router";
 
@@ -13,7 +13,7 @@ export function Suppliers() {
   const loadHelpList = async (pageUrl = null) => {
     setLoading(true);
     try {
-      const data = await fetchHelpList(pageUrl);
+      const data = await fetchSuppliersList(pageUrl);
       console.log("Fetched help data:", data);
       setHelpData(data);
     } catch (err) {
