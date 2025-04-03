@@ -119,3 +119,65 @@ export async function fetchSuppliersList(pageUrl = null) {
     throw error;
   }
 }
+
+// Blog related API functions
+export async function fetchBlogPosts() {
+  try {
+    const response = await apiClient.get("/blog");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching blog posts:", error);
+    throw error;
+  }
+}
+
+export async function fetchBlogPostById(id) {
+  try {
+    const response = await apiClient.get(`/blog/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching blog post with ID ${id}:`, error);
+    throw error;
+  }
+}
+
+export async function createBlogPost(formData) {
+  try {
+    // Use multipart/form-data for file uploads
+    const response = await axios.post(`${API}/blog`, formData, {
+      headers: {
+        ...authHeader(),
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating blog post:", error);
+    throw error;
+  }
+}
+
+export async function updateBlogPost(id, formData) {
+  try {
+    const response = await axios.put(`${API}/blog/${id}`, formData, {
+      headers: {
+        ...authHeader(),
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating blog post with ID ${id}:`, error);
+    throw error;
+  }
+}
+
+export async function deleteBlogPost(id) {
+  try {
+    const response = await apiClient.delete(`/blog/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting blog post with ID ${id}:`, error);
+    throw error;
+  }
+}

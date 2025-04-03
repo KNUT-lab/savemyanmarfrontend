@@ -11,6 +11,10 @@ import { Login } from "./components/Login";
 import { Suppliers } from "./components/Suppliers";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AddSuppliers } from "./components/AddSuppliers";
+import { Blog } from "./components/Blog";
+import { BlogDetail } from "./components/BlogDetail";
+import { CreateBlogPost } from "./components/CreateBlogPost";
+import { ProtectedBlogPost } from "./components/ProtectedBlogPost";
 // Fallback component for error boundary
 function ErrorFallback(props) {
   return (
@@ -61,6 +65,16 @@ function App() {
                 <ProtectedRoute>
                   <AddSuppliers {...props} />
                 </ProtectedRoute>
+              )}
+            />
+            <Route path="/blog" component={Blog} />
+            <Route path="/blog/:id" component={BlogDetail} />
+            <Route
+              path="/blog/create"
+              component={(props) => (
+                <ProtectedBlogPost>
+                  <CreateBlogPost {...props} />
+                </ProtectedBlogPost>
               )}
             />
           </Router>

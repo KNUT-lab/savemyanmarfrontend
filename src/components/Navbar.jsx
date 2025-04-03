@@ -1,5 +1,6 @@
 import { createSignal, For } from "solid-js";
 import logo from "../../public/logo.png";
+import { isAuthenticated } from "../utils/auth";
 
 export function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = createSignal(false);
@@ -16,6 +17,7 @@ export function NavBar() {
     { title: "Home", href: "/" },
     { title: "Get Help", href: "/get-help" },
     { title: "Help Lists", href: "/help-list" },
+    { title: "Blog", href: "/blog" },
     { title: "Suppliers", href: "/suppliers" },
     { title: "About", href: "/about" },
     { title: "Contact", href: "/contact" },
@@ -25,7 +27,11 @@ export function NavBar() {
     <nav class="bg-blue-500 p-3 sm:p-4 text-white shadow-lg">
       <div class="container mx-auto flex flex-wrap justify-between items-center">
         <a href="/" class="text-lg sm:text-xl font-bold">
-          <img src={logo} alt="Logo" class="h-15 w-auto" />
+          <img
+            src={logo || "/placeholder.svg"}
+            alt="Logo"
+            class="h-15 w-auto"
+          />
         </a>
 
         {/* Mobile menu button */}
@@ -69,6 +75,16 @@ export function NavBar() {
               </li>
             )}
           </For>
+          {isAuthenticated() && (
+            <li>
+              <a
+                href="/blog/create"
+                class="hover:underline px-2 py-1 rounded bg-green-600 hover:bg-green-700 transition-colors duration-200"
+              >
+                New Post
+              </a>
+            </li>
+          )}
         </ul>
 
         {/* Mobile menu with animation */}
@@ -93,6 +109,17 @@ export function NavBar() {
                 </li>
               )}
             </For>
+            {isAuthenticated() && (
+              <li>
+                <a
+                  href="/blog/create"
+                  class="block bg-green-600 hover:bg-green-700 px-3 py-2 rounded transition-colors duration-200"
+                  onClick={closeMenu}
+                >
+                  New Post
+                </a>
+              </li>
+            )}
           </ul>
         </div>
       </div>
