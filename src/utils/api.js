@@ -144,7 +144,7 @@ export async function fetchBlogPostById(id) {
 export async function createBlogPost(formData) {
   try {
     // Use multipart/form-data for file uploads
-    const response = await axios.post(`${API}/blog`, formData, {
+    const response = await axios.post(`${API}/addblog`, formData, {
       headers: {
         ...authHeader(),
         "Content-Type": "multipart/form-data",
@@ -159,7 +159,7 @@ export async function createBlogPost(formData) {
 
 export async function updateBlogPost(id, formData) {
   try {
-    const response = await axios.put(`${API}/blog/${id}`, formData, {
+    const response = await axios.put(`${API}/updateblog/${id}`, formData, {
       headers: {
         ...authHeader(),
         "Content-Type": "multipart/form-data",

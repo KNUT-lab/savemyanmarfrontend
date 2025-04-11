@@ -1,4 +1,4 @@
-import { createSignal, createEffect, Show } from "solid-js";
+import { createSignal, createEffect, Show, For } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { fetchBlogPostById } from "../utils/api";
 
@@ -7,12 +7,14 @@ export function BlogDetail() {
   const [post, setPost] = createSignal(null);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
+  const [activeImageIndex, setActiveImageIndex] = createSignal(0);
 
   createEffect(async () => {
     try {
       setLoading(true);
       const data = await fetchBlogPostById(params.id);
-      setPost(data);
+      console.log(data.request.createdAt);
+      setPost(data.request);
     } catch (err) {
       console.error("Error fetching blog post:", err);
       setError("Failed to load blog post. Please try again later.");
@@ -35,13 +37,42 @@ export function BlogDetail() {
         >
           <Show when={post()} fallback={<div>Post not found</div>}>
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-              <Show when={post().imageUrl}>
-                <div class="relative h-64 md:h-96">
-                  <img
-                    src={post().imageUrl || "/placeholder.svg"}
-                    alt={post().title}
-                    class="w-full h-full object-cover"
-                  />
+              <Show when={post().images && post().images.length > 0}>
+                <div class="relative">
+                  {/* Main image display */}
+                  <div class="relative h-64 md:h-96">
+                    <img
+                      src={
+                        post().images[activeImageIndex()] || "/placeholder.svg"
+                      }
+                      alt={`${post().title} - image ${activeImageIndex() + 1}`}
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Image gallery thumbnails - only show if multiple images */}
+                  <Show when={post().images.length > 1}>
+                    <div class="flex overflow-x-auto p-2 bg-gray-100 gap-2">
+                      <For each={post().images}>
+                        {(image, index) => (
+                          <button
+                            onClick={() => setActiveImageIndex(index())}
+                            class="flex-shrink-0 focus:outline-none"
+                            classList={{
+                              "ring-2 ring-blue-500":
+                                activeImageIndex() === index(),
+                            }}
+                          >
+                            <img
+                              src={image || "/placeholder.svg"}
+                              alt={`Thumbnail ${index() + 1}`}
+                              class="h-16 w-16 object-cover rounded"
+                            />
+                          </button>
+                        )}
+                      </For>
+                    </div>
+                  </Show>
                 </div>
               </Show>
 

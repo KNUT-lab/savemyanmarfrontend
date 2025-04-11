@@ -117,7 +117,7 @@ export function AddSuppliers() {
       lat: location.lat,
       lon: location.lon,
     };
-
+    console.log(submitData);
     setIsSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(false);
@@ -146,59 +146,6 @@ export function AddSuppliers() {
   return (
     <div class="bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto">
       <h2 class="text-2xl font-bold text-blue-800 mb-6">အကူအညီပေးရန်</h2>
-
-      <div
-        class={`mb-6 p-4 rounded-lg flex items-center ${
-          locationStatus() === "loading"
-            ? "bg-blue-50 text-blue-700"
-            : locationStatus() === "success"
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
-        }`}
-      >
-        <div class="mr-3">
-          {locationStatus() === "loading" && (
-            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
-          )}
-          {locationStatus() === "success" && (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          )}
-          {locationStatus() === "error" && (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-          )}
-        </div>
-        <p class="text-sm">{locationText()}</p>
-        {locationStatus() === "error" && (
-          <button
-            onClick={getLocation}
-            class="ml-auto text-xs bg-red-100 hover:bg-red-200 text-red-800 px-2 py-1 rounded"
-          >
-            ပြန်လည်ကြိုးစားရန်
-          </button>
-        )}
-      </div>
 
       <form onSubmit={submitForm} class="space-y-6">
         {submitSuccess() && (

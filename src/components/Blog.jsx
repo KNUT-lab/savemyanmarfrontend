@@ -10,6 +10,7 @@ export function Blog() {
     try {
       setLoading(true);
       const data = await fetchBlogPosts();
+      console.log(data);
       setPosts(data);
     } catch (err) {
       console.error("Error fetching blog posts:", err);
@@ -37,12 +38,22 @@ export function Blog() {
             <For each={posts()} fallback={<div>No posts available.</div>}>
               {(post) => (
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                  <Show when={post.imageUrl}>
-                    <img
-                      src={post.imageUrl || "/placeholder.svg"}
-                      alt={post.title}
-                      class="w-full h-48 object-cover"
-                    />
+                  <Show when={post.images && post.images.length > 0}>
+                    <div class="relative h-48 overflow-hidden">
+                      {/* Display the first image as the main thumbnail */}
+                      <img
+                        src={post.images[0] || "/placeholder.svg"}
+                        alt={post.title}
+                        class="w-full h-full object-cover"
+                      />
+
+                      {/* If there are multiple images, show a counter */}
+                      <Show when={post.images.length > 1}>
+                        <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full">
+                          +{post.images.length - 1} more
+                        </div>
+                      </Show>
+                    </div>
                   </Show>
                   <div class="p-4">
                     <div class="flex justify-between items-start mb-2">
