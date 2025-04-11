@@ -181,3 +181,14 @@ export async function deleteBlogPost(id) {
     throw error;
   }
 }
+
+export async function addSupplier(data) {
+  try {
+    const response = await apiClient.post("/add-suppliers", data);
+    //return response.data;
+    console.log(response.data);
+  } catch (error) {
+    console.error("Error request:", error);
+    throw error;
+  }
+}

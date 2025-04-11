@@ -10,7 +10,7 @@ export function Blog() {
     try {
       setLoading(true);
       const data = await fetchBlogPosts();
-      console.log(data);
+      console.log(data.posts);
       setPosts(data.posts);
     } catch (err) {
       console.error("Error fetching blog posts:", err);
