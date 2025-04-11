@@ -1,5 +1,5 @@
 import { createSignal, onMount, createEffect, For } from "solid-js";
-import { submitHelpRequest, fetchCities, fetchCategories } from "../utils/api";
+import { addSupplier, fetchCities, fetchCategories } from "../utils/api";
 import { useNavigate } from "@solidjs/router";
 
 export function AddSuppliers() {
@@ -123,7 +123,7 @@ export function AddSuppliers() {
     setSubmitSuccess(false);
 
     try {
-      await submitHelpRequest(submitData);
+      await addSupplier(submitData);
       setSubmitSuccess(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
 
