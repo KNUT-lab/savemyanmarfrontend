@@ -14,8 +14,23 @@ export function Suppliers() {
     setLoading(true);
     try {
       const data = await fetchSuppliersList(pageUrl);
-      console.log("Fetched help data:", data);
-      setHelpData(data);
+  
+      // Group by all category names instead of only the first
+      const grouped = {};
+      for (const item of data.results) {
+        const categories = item.cat_names || ["Unknown"];
+        for (const cat of categories) {
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(item);
+        }
+      }
+  
+      setHelpData({
+        count: data.count,
+        next: data.next,
+        previous: data.previous,
+        results: grouped,
+      });
     } catch (err) {
       console.error("Error fetching help list:", err);
       setError("Failed to load help requests. Please try again later.");
@@ -87,7 +102,6 @@ export function Suppliers() {
           </div>
         </div>
       </Show>
-
       <Show when={helpData() && !loading()}>
         <div>
           <div class="mb-6 overflow-x-auto">
@@ -138,7 +152,9 @@ export function Suppliers() {
                   </Show>
 
                   <For each={requests}>
-                    {(request) => (
+                    {(request) => {
+                    console.log("request in loop",request); 
+                    return (
                       <div class="border border-gray-200 rounded-md p-4 mb-4 hover:bg-gray-50 transition-colors duration-200 shadow-sm">
                         <div class="flex justify-between items-start">
                           <div>
@@ -147,7 +163,7 @@ export function Suppliers() {
                             </p>
                             <div class="flex items-center mt-1">
                               <span class="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full mr-2">
-                                {request.cat}
+                                {request.cat_names.join(", ")}
                               </span>
                               <p class="text-gray-600 text-sm">
                                 ဖုန်းနံပါတ်: {request.phone_number}
@@ -213,7 +229,7 @@ export function Suppliers() {
                           </button>
                         </div>
                       </div>
-                    )}
+                    )}}
                   </For>
                 </div>
               </Show>
