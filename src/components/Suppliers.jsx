@@ -14,6 +14,7 @@ export function Suppliers() {
     setLoading(true);
     try {
       const data = await fetchSuppliersList(pageUrl);
+      console.log("Backend Paginated?", data.backend_pagination_used)
   
       // Group by all category names instead of only the first
       const grouped = {};
